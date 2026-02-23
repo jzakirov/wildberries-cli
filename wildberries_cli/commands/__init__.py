@@ -1,1 +1,1 @@
-"""wb command modules."""
+"""wildberries command modules."""

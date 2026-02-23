@@ -7,9 +7,9 @@ name = "wildberries-cli"
 version = "0.1.0"
 description = "Wildberries seller platform CLI powered by wildberries-sdk"
 readme = "README.md"
-requires-python = ">=3.11"
+requires-python = ">=3.10"
 license = { file = "LICENSE" }
-authors = [{ name = "OpenAI Codex" }]
+authors = [{ name = "Jamil Zakirov", email = "jamil@zakirov.com" }]
 dependencies = [
     "typer>=0.12.0",
     "rich>=13.7.0",
@@ -19,6 +19,7 @@ dependencies = [
 keywords = ["wildberries", "cli", "marketplace"]
 classifiers = [
     "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.10",
     "Programming Language :: Python :: 3.11",
     "Programming Language :: Python :: 3.12",
     "License :: OSI Approved :: MIT License",
@@ -32,7 +33,7 @@ Source = "https://github.com/jzakirov/wildberries-cli"
 Issues = "https://github.com/jzakirov/wildberries-cli/issues"
 
 [project.scripts]
-wb = "wildberries_cli.main:app"
+wildberries = "wildberries_cli.main:app"
 
 [tool.uv.build-backend]
 module-name = "wildberries_cli"
@@ -42,7 +43,7 @@ module-root = ""
 dev = ["ruff>=0.9.0"]
 
 [tool.ruff]
-target-version = "py311"
+target-version = "py310"
 line-length = 100
 
 [tool.ruff.format]

@@ -1,6 +1,5 @@
 """Dynamic Wildberries SDK client factory and API invocation helpers."""
 
-from __future__ import annotations
 
 import importlib
 import inspect
@@ -60,7 +59,7 @@ def get_module_client(module_name: str, cfg: "Config", *, require_token: bool = 
     conf_kwargs: dict[str, Any] = {}
     if cfg.api_token:
         conf_kwargs["api_key"] = {"HeaderApiKey": cfg.api_token}
-    if cfg.retries:
+    if cfg.retries is not None:
         conf_kwargs["retries"] = cfg.retries
     conf = Configuration(**conf_kwargs)
     api_client = ApiClient(conf)
@@ -102,8 +101,6 @@ def call_with_retry(fn: Any, cfg: "Config", **kwargs: Any) -> Any:
             _handle_exception(exc)
             raise typer.Exit(1)
 
-    raise typer.Exit(1)
-
 
 def normalize_module_name(value: str) -> str:
     return value.replace("-", "_").strip()
@@ -113,7 +110,7 @@ def _require_token(cfg: "Config") -> None:
     if not cfg.api_token:
         print_error(
             "auth_error",
-            "No WB API token configured. Set WB_API_TOKEN, use --api-token, or run `wb config init`.",
+            "No WB API token configured. Set WB_API_TOKEN, use --api-token, or run `wildberries config init`.",
         )
         raise typer.Exit(1)
 

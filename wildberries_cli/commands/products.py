@@ -1,6 +1,5 @@
 """products subcommand (selected read endpoints + cards list body query)."""
 
-from __future__ import annotations
 
 import typer
 

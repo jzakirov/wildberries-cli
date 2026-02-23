@@ -1,6 +1,5 @@
 """config subcommand: show / set / init."""
 
-from __future__ import annotations
 
 import sys
 
@@ -13,7 +12,7 @@ from wildberries_cli.config import Config, CONFIG_PATH, config_as_dict, load_con
 from wildberries_cli.output import print_error, print_json
 from wildberries_cli.serialize import to_data
 
-app = typer.Typer(name="config", help="Manage wb CLI configuration.", no_args_is_help=True)
+app = typer.Typer(name="config", help="Manage wildberries CLI configuration.", no_args_is_help=True)
 console = Console()
 
 
@@ -40,13 +39,20 @@ def config_set(
 
 
 @app.command("init")
-def config_init(ctx: typer.Context) -> None:
+def config_init(
+    ctx: typer.Context,
+    skip_validation: bool = typer.Option(
+        False,
+        "--skip-validation",
+        help="Save config without validating the token against the API (useful offline).",
+    ),
+) -> None:
     if not sys.stdin.isatty():
-        print_error("validation_error", "`wb config init` requires an interactive terminal.")
+        print_error("validation_error", "`wildberries config init` requires an interactive terminal.")
         raise typer.Exit(1)
 
     cfg: Config = ctx.obj
-    console.print("[bold]wb setup wizard[/bold]")
+    console.print("[bold]wildberries setup wizard[/bold]")
     console.print(f"Config will be saved to: [dim]{CONFIG_PATH}[/dim]\n")
 
     api_token = Prompt.ask("WB API token", password=True, default=cfg.api_token or "")
@@ -71,20 +77,23 @@ def config_init(ctx: typer.Context) -> None:
     new_cfg.retries = retries
     new_cfg.locale = locale_text or None
 
-    console.print("\nValidating token with `general.api_v1_seller_info_get`…")
-    try:
-        result = call_api("general", "api_v1_seller_info_get", new_cfg)
-        seller = to_data(result)
-        seller_name = seller.get("name") if isinstance(seller, dict) else None
-        if seller_name:
-            console.print(f"[green]✓[/green] Connected as: {seller_name}")
-        else:
-            console.print("[green]✓[/green] Token is valid")
-    except typer.Exit:
-        raise
-    except Exception as exc:
-        print_error("auth_error", f"Validation failed: {exc}")
-        raise typer.Exit(1)
+    if not skip_validation:
+        console.print("\nValidating token with `general.api_v1_seller_info_get`…")
+        try:
+            result = call_api("general", "api_v1_seller_info_get", new_cfg)
+            seller = to_data(result)
+            seller_name = seller.get("name") if isinstance(seller, dict) else None
+            if seller_name:
+                console.print(f"[green]✓[/green] Connected as: {seller_name}")
+            else:
+                console.print("[green]✓[/green] Token is valid")
+        except typer.Exit:
+            raise
+        except Exception as exc:
+            print_error("auth_error", f"Validation failed: {exc}")
+            raise typer.Exit(1)
+    else:
+        console.print("\n[dim]Skipping token validation (--skip-validation)[/dim]")
 
     save_config(new_cfg)
     console.print(f"\n[green]✓[/green] Config saved to {CONFIG_PATH}")

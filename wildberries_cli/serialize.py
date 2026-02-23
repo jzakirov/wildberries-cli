@@ -1,6 +1,5 @@
 """Serialization helpers for generated SDK models and Python types."""
 
-from __future__ import annotations
 
 import base64
 from datetime import date, datetime
@@ -48,8 +47,9 @@ def to_data(obj: Any) -> Any:
         except Exception:
             pass
 
-    if hasattr(obj, "data") and hasattr(obj, "status"):
-        # Some generated wrappers expose a response-ish object.
+    if all(hasattr(obj, a) for a in ("data", "status", "reason", "headers")):
+        # Only treat as an HTTP response wrapper when all four canonical attributes are present.
+        # Checking only `data` + `status` is too broad and would match many SDK model objects.
         return {
             "status": getattr(obj, "status", None),
             "reason": getattr(obj, "reason", None),

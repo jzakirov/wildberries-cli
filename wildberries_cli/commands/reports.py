@@ -1,6 +1,5 @@
 """reports subcommand (read-only exports)."""
 
-from __future__ import annotations
 
 import typer
 

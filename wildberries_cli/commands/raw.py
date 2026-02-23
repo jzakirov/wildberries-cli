@@ -1,6 +1,5 @@
 """raw subcommand for direct SDK method access."""
 
-from __future__ import annotations
 
 import json
 
@@ -16,14 +15,19 @@ app = typer.Typer(name="raw", help="Direct SDK access for unsupported endpoints.
 
 
 @app.command("modules")
-def raw_modules() -> None:
-    emit(list_sdk_modules())
+def raw_modules(ctx: typer.Context) -> None:
+    cfg: Config = ctx.obj
+    emit(list_sdk_modules(), pretty=cfg.pretty)
 
 
 @app.command("methods")
-def raw_methods(module: str = typer.Argument(..., help="SDK module (e.g. reports, orders_fbs)")) -> None:
+def raw_methods(
+    ctx: typer.Context,
+    module: str = typer.Argument(..., help="SDK module (e.g. reports, orders_fbs)"),
+) -> None:
+    cfg: Config = ctx.obj
     try:
-        emit(list_methods(normalize_module_name(module)))
+        emit(list_methods(normalize_module_name(module)), pretty=cfg.pretty)
     except Exception as exc:
         print_error("validation_error", f"Could not list methods for module '{module}': {exc}")
         raise typer.Exit(1)
@@ -31,11 +35,13 @@ def raw_methods(module: str = typer.Argument(..., help="SDK module (e.g. reports
 
 @app.command("signature")
 def raw_signature(
+    ctx: typer.Context,
     module: str = typer.Argument(..., help="SDK module"),
     method: str = typer.Argument(..., help="DefaultApi method name"),
 ) -> None:
+    cfg: Config = ctx.obj
     try:
-        emit({"module": normalize_module_name(module), "signature": method_signature(module, method)})
+        emit({"module": normalize_module_name(module), "signature": method_signature(module, method)}, pretty=cfg.pretty)
     except Exception as exc:
         print_error("validation_error", f"Could not inspect method signature: {exc}")
         raise typer.Exit(1)

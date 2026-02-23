@@ -1,6 +1,5 @@
 """orders-fbs subcommand (selected operational endpoints)."""
 
-from __future__ import annotations
 
 import typer
 
@@ -27,12 +26,12 @@ def orders_new(ctx: typer.Context) -> None:
 def orders_list(
     ctx: typer.Context,
     limit: int = typer.Option(100, "--limit", min=1, max=1000),
-    next: int = typer.Option(0, "--next", help="Pagination cursor"),
+    cursor: int = typer.Option(0, "--next", help="Pagination cursor"),
     date_from: int | None = typer.Option(None, "--date-from", help="Unix timestamp start"),
     date_to: int | None = typer.Option(None, "--date-to", help="Unix timestamp end"),
 ) -> None:
     cfg: Config = ctx.obj
-    kwargs = {"limit": limit, "next": next, "date_from": date_from, "date_to": date_to}
+    kwargs = {"limit": limit, "next": cursor, "date_from": date_from, "date_to": date_to}
     data = to_data(call_api("orders_fbs", "api_v3_orders_get", cfg, **{k: v for k, v in kwargs.items() if v is not None}))
     emit(data, pretty=cfg.pretty, table_builder=fbs_orders_table)
 
@@ -92,10 +91,10 @@ def orders_stickers(
 def supplies_list(
     ctx: typer.Context,
     limit: int = typer.Option(100, "--limit", min=1, max=1000),
-    next: int = typer.Option(0, "--next", help="Pagination cursor"),
+    cursor: int = typer.Option(0, "--next", help="Pagination cursor"),
 ) -> None:
     cfg: Config = ctx.obj
-    data = to_data(call_api("orders_fbs", "api_v3_supplies_get", cfg, limit=limit, next=next))
+    data = to_data(call_api("orders_fbs", "api_v3_supplies_get", cfg, limit=limit, next=cursor))
     emit(data, pretty=cfg.pretty)
 
 

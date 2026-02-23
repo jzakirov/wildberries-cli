@@ -1,8 +1,8 @@
-"""Configuration management for wb CLI."""
+"""Configuration management for wildberries CLI."""
 
-from __future__ import annotations
 
 import os
+import sys
 from dataclasses import dataclass
 from pathlib import Path
 from typing import Any, Optional
@@ -26,6 +26,7 @@ _ENV_MAP = {
     "timeout_seconds": "WB_TIMEOUT",
     "retries": "WB_RETRIES",
     "locale": "WB_LOCALE",
+    "pretty": "WB_PRETTY",
 }
 
 
@@ -34,6 +35,7 @@ def load_config(
     timeout_flag: Optional[float] = None,
     retries_flag: Optional[int] = None,
     locale_flag: Optional[str] = None,
+    pretty_flag: Optional[bool] = None,
 ) -> Config:
     """Load config with priority: file < env < CLI flags."""
     cfg = Config()
@@ -51,8 +53,10 @@ def load_config(
                 cfg.retries = int(core["retries"])
             if defaults.get("locale"):
                 cfg.locale = str(defaults["locale"])
-        except Exception:
-            pass
+            if defaults.get("pretty") is not None:
+                cfg.pretty = bool(defaults["pretty"])
+        except Exception as exc:
+            print(f"wildberries: warning: could not parse config file {CONFIG_PATH}: {exc}", file=sys.stderr)
 
     if os.environ.get(_ENV_MAP["api_token"]):
         cfg.api_token = os.environ[_ENV_MAP["api_token"]]
@@ -68,6 +72,8 @@ def load_config(
             pass
     if os.environ.get(_ENV_MAP["locale"]):
         cfg.locale = os.environ[_ENV_MAP["locale"]]
+    if os.environ.get(_ENV_MAP["pretty"]):
+        cfg.pretty = os.environ[_ENV_MAP["pretty"]].lower() in {"1", "true", "yes"}
 
     if api_token_flag is not None:
         cfg.api_token = api_token_flag
@@ -77,6 +83,8 @@ def load_config(
         cfg.retries = retries_flag
     if locale_flag is not None:
         cfg.locale = locale_flag
+    if pretty_flag is not None:
+        cfg.pretty = pretty_flag
 
     if cfg.timeout_seconds <= 0:
         cfg.timeout_seconds = 30.0
@@ -112,6 +120,11 @@ def save_config(cfg: Config) -> None:
         doc["defaults"]["locale"] = cfg.locale
     elif "locale" in doc["defaults"]:
         del doc["defaults"]["locale"]
+
+    if cfg.pretty:
+        doc["defaults"]["pretty"] = True
+    elif "pretty" in doc["defaults"]:
+        del doc["defaults"]["pretty"]
 
     CONFIG_PATH.write_text(tomlkit.dumps(doc))
 
@@ -149,7 +162,7 @@ def config_as_dict(cfg: Config, reveal: bool = False) -> dict[str, Any]:
             "timeout_seconds": cfg.timeout_seconds,
             "retries": cfg.retries,
         },
-        "defaults": {"locale": cfg.locale},
+        "defaults": {"locale": cfg.locale, "pretty": cfg.pretty},
     }
 
 

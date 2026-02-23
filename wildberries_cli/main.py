@@ -1,6 +1,5 @@
-"""wb CLI root application."""
+"""wildberries CLI root application."""
 
-from __future__ import annotations
 
 from importlib.metadata import version
 from typing import Optional
@@ -28,8 +27,8 @@ from wildberries_cli.commands import (  # noqa: E402
 )
 
 app = typer.Typer(
-    name="wb",
-    help="[bold]wb[/bold] — Wildberries seller platform from the command line.",
+    name="wildberries",
+    help="[bold]wildberries[/bold] — Wildberries seller platform from the command line.",
     no_args_is_help=True,
     rich_markup_mode="rich",
 )
@@ -75,7 +74,13 @@ def main(
         help="Default locale for endpoints that support it (ru|en|zh)",
         show_envvar=True,
     ),
-    pretty: bool = typer.Option(False, "--pretty", help="Render Rich tables / pretty JSON when available"),
+    pretty: Optional[bool] = typer.Option(
+        None,
+        "--pretty/--no-pretty",
+        envvar="WB_PRETTY",
+        help="Render Rich tables / pretty JSON when available (overrides config)",
+        show_envvar=True,
+    ),
     _version: Optional[bool] = typer.Option(
         None,
         "--version",
@@ -92,6 +97,6 @@ def main(
         timeout_flag=timeout,
         retries_flag=retries,
         locale_flag=locale,
+        pretty_flag=pretty,
     )
-    cfg.pretty = pretty
     ctx.obj = cfg

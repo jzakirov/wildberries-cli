@@ -1,6 +1,5 @@
 """Output helpers: JSON, errors, and optional Rich tables."""
 
-from __future__ import annotations
 
 import json
 import sys
@@ -121,7 +120,10 @@ def reports_table(data: Any) -> Optional[Table]:
     cols = [(h, k) for h, k in candidates if any(k in row for row in data[:20])]
     if not cols:
         cols = [(k, k) for k in list(first.keys())[:6]]
-    return simple_table(data[:100], cols)
+    total = len(data)
+    display = data[:100]
+    title = f"Reports (showing {len(display)} of {total})" if total > 100 else None
+    return simple_table(display, cols, title=title)
 
 
 def fbs_orders_table(data: Any) -> Optional[Table]:

@@ -1,6 +1,5 @@
 """general subcommand: ping / seller-info / users."""
 
-from __future__ import annotations
 
 import typer
 
