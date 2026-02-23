@@ -26,6 +26,11 @@ classifiers = [
     "Topic :: Utilities",
 ]
 
+[project.urls]
+Homepage = "https://github.com/jzakirov/wildberries-cli"
+Source = "https://github.com/jzakirov/wildberries-cli"
+Issues = "https://github.com/jzakirov/wildberries-cli/issues"
+
 [project.scripts]
 wb = "wildberries_cli.main:app"
 
