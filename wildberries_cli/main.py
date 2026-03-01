@@ -1,6 +1,5 @@
 """wildberries CLI root application."""
 
-
 from importlib.metadata import version
 from typing import Optional
 
@@ -20,6 +19,7 @@ from wildberries_cli.commands import (  # noqa: E402
     config_cmd,
     general,
     orders_fbs,
+    promotion,
     products,
     raw,
     reports,
@@ -40,6 +40,7 @@ app.add_typer(reports.app, name="reports")
 app.add_typer(communications.app, name="communications")
 app.add_typer(products.app, name="products")
 app.add_typer(orders_fbs.app, name="orders-fbs")
+app.add_typer(promotion.app, name="promotion")
 app.add_typer(raw.app, name="raw")
 
 
